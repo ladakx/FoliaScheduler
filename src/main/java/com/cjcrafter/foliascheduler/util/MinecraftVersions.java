@@ -218,6 +218,7 @@ public final class MinecraftVersions {
         update.version(5, 4); // 1.21.5 (Spring to Life)
         update.version(6, 5); // 1.21.6 (Chase the Skies)
         update.version(7, 5); // 1.21.7
+        update.version(8, 5); // 1.21.8
     }));
 
     /**
