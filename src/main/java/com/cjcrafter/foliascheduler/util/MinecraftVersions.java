@@ -219,6 +219,9 @@ public final class MinecraftVersions {
         update.version(6, 5); // 1.21.6 (Chase the Skies)
         update.version(7, 5); // 1.21.7
         update.version(8, 5); // 1.21.8
+        update.version(9, 6); // 1.21.9 (The Copper Age)
+        update.version(10, 6); // 1.21.10
+        update.version(11, 7); // 1.21.11 (Mounts of Mayhem)
     }));
 
     /**
