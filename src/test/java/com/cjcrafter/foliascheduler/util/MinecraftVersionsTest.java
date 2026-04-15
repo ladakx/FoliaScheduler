@@ -13,9 +13,14 @@ public class MinecraftVersionsTest {
 
     @ParameterizedTest
     @CsvSource({
+        "Bukkit 1.8.9,1.8.9R3",
+        "Paper (1.9.4),1.9.4R2",
+        "Spigot 1.10.2,1.10.2R1",
+        "Bukkit 1.11.2,1.11.2R1",
         "Bukkit 1.12.2,1.12.2R1",
         "Paper (1.16.5),1.16.5R3",
-        "Purpur 1.20.4,1.20.4R3"
+        "Purpur 1.20.4,1.20.4R3",
+        "Paper (26.1),26.1R1"
     })
     public void testParseVersion(String versionString, String expected) {
         MinecraftVersions.Version version = MinecraftVersions.parseCurrentVersion(versionString);
@@ -26,8 +31,13 @@ public class MinecraftVersionsTest {
 
     @ParameterizedTest
     @CsvSource({
+        "Bukkit 1.8,1.8.0R1",
+        "Paper (1.9),1.9.0R1",
+        "Spigot 1.10,1.10.0R1",
+        "Bukkit 1.11,1.11.0R1",
         "Bukkit 1.20,1.20.0R1",
-        "Paper (1.20),1.20.0R1"
+        "Paper (1.20),1.20.0R1",
+        "Paper (26.1),26.1R1"
     })
     public void testParseVersionWithoutPatch(String versionString, String expected) {
         MinecraftVersions.Version version = MinecraftVersions.parseCurrentVersion(versionString);
@@ -103,5 +113,14 @@ public class MinecraftVersionsTest {
 
         // We expect 0.0 to be older than 1.13.2
         assertTrue(version.compareTo(updateAquatic) < 0);
+    }
+
+    @Test
+    public void testLegacyAndFutureProtocolConstants() {
+        assertEquals(3, MinecraftVersions.BOUNTIFUL_UPDATE.get(9).getProtocol());
+        assertEquals(2, MinecraftVersions.COMBAT_UPDATE.get(4).getProtocol());
+        assertEquals(1, MinecraftVersions.FROSTBURN_UPDATE.get(2).getProtocol());
+        assertEquals(1, MinecraftVersions.EXPLORATION_UPDATE.get(2).getProtocol());
+        assertEquals(1, MinecraftVersions.SPRING_DROP_26_1.get(0).getProtocol());
     }
 }

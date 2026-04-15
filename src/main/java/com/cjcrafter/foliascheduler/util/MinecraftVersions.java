@@ -46,6 +46,7 @@ public final class MinecraftVersions {
     private static @NotNull Update registerUpdate(@NotNull Update update) {
         allUpdates.put(update.toString(), update);
         for (Version version : update.versions) {
+            allVersions.put(version.major + "." + version.minor + "." + version.patch, version);
             allVersions.put(version.toString(), version);
         }
         return update;
@@ -114,6 +115,51 @@ public final class MinecraftVersions {
         // If the version is not known, create a new "unknown" version
         return new Version(major, minor, patch, -1);
     }
+
+    /**
+     * 1.8, legacy 1.8.x releases.
+     */
+    public static final @NotNull Update BOUNTIFUL_UPDATE = registerUpdate(new Update(1, 8, update -> {
+        update.version(0, 1); // 1.8
+        update.version(1, 1); // 1.8.1
+        update.version(2, 1); // 1.8.2
+        update.version(3, 2); // 1.8.3
+        update.version(4, 3); // 1.8.4
+        update.version(5, 3); // 1.8.5
+        update.version(6, 3); // 1.8.6
+        update.version(7, 3); // 1.8.7
+        update.version(8, 3); // 1.8.8
+        update.version(9, 3); // 1.8.9
+    }));
+
+    /**
+     * 1.9, combat update.
+     */
+    public static final @NotNull Update COMBAT_UPDATE = registerUpdate(new Update(1, 9, update -> {
+        update.version(0, 1); // 1.9
+        update.version(1, 1); // 1.9.1
+        update.version(2, 1); // 1.9.2
+        update.version(3, 2); // 1.9.3
+        update.version(4, 2); // 1.9.4
+    }));
+
+    /**
+     * 1.10, frostburn update.
+     */
+    public static final @NotNull Update FROSTBURN_UPDATE = registerUpdate(new Update(1, 10, update -> {
+        update.version(0, 1); // 1.10
+        update.version(1, 1); // 1.10.1
+        update.version(2, 1); // 1.10.2
+    }));
+
+    /**
+     * 1.11, exploration update.
+     */
+    public static final @NotNull Update EXPLORATION_UPDATE = registerUpdate(new Update(1, 11, update -> {
+        update.version(0, 1); // 1.11
+        update.version(1, 1); // 1.11.1
+        update.version(2, 1); // 1.11.2
+    }));
 
     /**
      * 1.12, the colorful blocks update (concrete)
@@ -225,6 +271,13 @@ public final class MinecraftVersions {
     }));
 
     /**
+     * 26.1, first release using the year.month versioning scheme.
+     */
+    public static final @NotNull Update SPRING_DROP_26_1 = registerUpdate(new Update(26, 1, update -> {
+        update.version(0, 1, false); // 26.1
+    }));
+
+    /**
      * Represents a "big" Minecraft update, e.g., 1.13 -> 1.14
      */
     public static class Update implements Comparable<Update> {
@@ -243,7 +296,7 @@ public final class MinecraftVersions {
         /**
          * Creates a new Update instance.
          *
-         * @param major The major version. Always 1.
+         * @param major The major version.
          * @param minor The minor version.
          * @param init A Consumer to initialize the versions for this update.
          */
@@ -276,14 +329,26 @@ public final class MinecraftVersions {
          * Used internally to add a new version to this update.
          *
          * @param patch The patch number.
-         * @param protocol The protocol version.
+         * @param protocol The package revision, such as R1 or R2.
          * @throws IllegalStateException if versions are added after initialization.
          */
         void version(int patch, int protocol) {
+            version(patch, protocol, true);
+        }
+
+        /**
+         * Used internally to add a new version to this update.
+         *
+         * @param patch The patch number.
+         * @param protocol The package revision, such as R1 or R2.
+         * @param includePatchInText Whether {@link Version#toString()} should include the patch.
+         * @throws IllegalStateException if versions are added after initialization.
+         */
+        void version(int patch, int protocol, boolean includePatchInText) {
             if (lock) {
                 throw new IllegalStateException("Cannot add versions after initialization");
             }
-            Version version = new Version(this, patch, protocol);
+            Version version = new Version(this, patch, protocol, includePatchInText);
             versions.add(version);
         }
 
@@ -340,11 +405,13 @@ public final class MinecraftVersions {
          * @throws IllegalArgumentException if no such version exists
          */
         public @NotNull Version get(int patch) {
-            try {
-                return versions.get(patch);
-            } catch (IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Unknown version: " + major + "." + minor + "." + patch);
+            for (Version version : versions) {
+                if (version.patch == patch) {
+                    return version;
+                }
             }
+
+            throw new IllegalArgumentException("Unknown version: " + major + "." + minor + "." + patch);
         }
 
         @Override
@@ -373,7 +440,7 @@ public final class MinecraftVersions {
     }
 
     /**
-     * Holds a specific version of an update, formatted in major.minor.patch. For example, 1.13.2.
+     * Holds a specific version of an update, usually formatted in major.minor.patch.
      */
     public static class Version implements Comparable<Version> {
 
@@ -382,6 +449,7 @@ public final class MinecraftVersions {
         private final int minor;
         private final int patch;
         private final int protocol;
+        private final boolean includePatchInText;
 
         /**
          * Creates a new Version instance.
@@ -392,10 +460,24 @@ public final class MinecraftVersions {
          * @param protocol The current protocol version.
          */
         public Version(int major, int minor, int patch, int protocol) {
+            this(major, minor, patch, protocol, true);
+        }
+
+        /**
+         * Creates a new Version instance.
+         *
+         * @param major The major number.
+         * @param minor The minor number.
+         * @param patch The patch number.
+         * @param protocol The current package revision.
+         * @param includePatchInText Whether {@link #toString()} should include the patch.
+         */
+        public Version(int major, int minor, int patch, int protocol, boolean includePatchInText) {
             this.major = major;
             this.minor = minor;
             this.patch = patch;
             this.protocol = protocol;
+            this.includePatchInText = includePatchInText;
 
             // Create a "fake" update to hold this version, so comparisons can
             // be made between updates. This is not added to the allUpdates map.
@@ -410,11 +492,24 @@ public final class MinecraftVersions {
          * @param protocol The current protocol version.
          */
         public Version(@NotNull Update update, int patch, int protocol) {
+            this(update, patch, protocol, true);
+        }
+
+        /**
+         * Creates a new Version instance.
+         *
+         * @param update The parent update.
+         * @param patch The patch number.
+         * @param protocol The current package revision.
+         * @param includePatchInText Whether {@link #toString()} should include the patch.
+         */
+        public Version(@NotNull Update update, int patch, int protocol, boolean includePatchInText) {
             this.update = update;
             this.major = update.major;
             this.minor = update.minor;
             this.patch = patch;
             this.protocol = protocol;
+            this.includePatchInText = includePatchInText;
         }
 
         /**
@@ -454,14 +549,14 @@ public final class MinecraftVersions {
         }
 
         /**
-         * Returns the protocol version, like R1, R2, etc.
+         * Returns the server package revision, like R1, R2, etc.
          * <p>
          * If the version is "unknown" (not included in the utility), this will
          * return -1. This happens usually because a new version of Minecraft was
          * released after this utility was created... Be sure to keep this
          * updated!
          *
-         * @return The protocol version.
+         * @return The package revision.
          */
         public int getProtocol() {
             return protocol;
@@ -545,6 +640,9 @@ public final class MinecraftVersions {
 
         @Override
         public @NotNull String toString() {
+            if (!includePatchInText) {
+                return major + "." + minor;
+            }
             return major + "." + minor + "." + patch;
         }
     }
