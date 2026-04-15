@@ -73,7 +73,9 @@ public class FoliaEntityScheduler implements EntitySchedulerImplementation {
     public @Nullable <T> TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, @Nullable Runnable retired, long delay, long period) {
         FoliaTask<T> taskImplementation = new FoliaTask<>();
         Consumer<ScheduledTask> foliaConsumer = buildFoliaConsumer(taskImplementation, function);
-        ScheduledTask scheduledTask = entityScheduler.runAtFixedRate(plugin, foliaConsumer, retired, delay, period);
+        // Paper's entity scheduler rejects non-positive initial delays.
+        long initialDelay = Math.max(1L, delay);
+        ScheduledTask scheduledTask = entityScheduler.runAtFixedRate(plugin, foliaConsumer, retired, initialDelay, period);
 
         // Happens when entity is not valid, check Entity#isValid()
         if (scheduledTask == null)
