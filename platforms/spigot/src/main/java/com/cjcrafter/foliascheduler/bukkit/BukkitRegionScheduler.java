@@ -50,6 +50,8 @@ public class BukkitRegionScheduler implements RegionSchedulerImplementation {
 
     @Override
     public @NotNull <T> TaskImplementation<T> runDelayed(@NotNull Function<TaskImplementation<T>, T> function, long delay) {
+        if (delay <= 0) delay = 1;
+
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, false);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
         taskImplementation.setScheduledTask(runnable.runTaskLater(plugin, delay));
@@ -58,6 +60,9 @@ public class BukkitRegionScheduler implements RegionSchedulerImplementation {
 
     @Override
     public @NotNull <T> TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, long delay, long period) {
+        if (delay <= 0) delay = 1;
+        if (period <= 0) period = 1;
+
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, true);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
         taskImplementation.setScheduledTask(runnable.runTaskTimer(plugin, delay, period));

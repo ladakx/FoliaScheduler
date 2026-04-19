@@ -44,6 +44,7 @@ public class BukkitAsyncScheduler implements AsyncSchedulerImplementation {
     public @NotNull <T> TaskImplementation<T> runDelayed(@NotNull Function<TaskImplementation<T>, T> function, long delay, @NotNull TimeUnit unit) {
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, false);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
+        if (delay <= 0) delay = 1;
         taskImplementation.setScheduledTask(runnable.runTaskLaterAsynchronously(plugin, unit.toSeconds(delay) * 20));
         return taskImplementation;
     }
@@ -52,6 +53,8 @@ public class BukkitAsyncScheduler implements AsyncSchedulerImplementation {
     public @NotNull <T> TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, long delay, long period, @NotNull TimeUnit unit) {
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, true);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
+        if (delay <= 0) delay = 1;
+        if (period <= 0) period = 1;
         taskImplementation.setScheduledTask(runnable.runTaskTimerAsynchronously(plugin, unit.toSeconds(delay) * 20, unit.toSeconds(period) * 20));
         return taskImplementation;
     }

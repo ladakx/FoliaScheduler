@@ -47,6 +47,7 @@ public class BukkitEntityScheduler implements EntitySchedulerImplementation {
 
     @Override
     public boolean execute(@NotNull Runnable run, @Nullable Runnable retired, long delay) {
+        if (delay <= 0) delay = 1;
         if (isRetired(retired))
             return false;
 
@@ -76,6 +77,7 @@ public class BukkitEntityScheduler implements EntitySchedulerImplementation {
     public @Nullable <T> TaskImplementation<T> runDelayed(@NotNull Function<TaskImplementation<T>, T> function, @Nullable Runnable retired, long delay) {
         if (isRetired(retired))
             return null;
+        if (delay <= 0) delay = 1;
 
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, false);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
@@ -87,7 +89,8 @@ public class BukkitEntityScheduler implements EntitySchedulerImplementation {
     public @Nullable <T> TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, @Nullable Runnable retired, long delay, long period) {
         if (isRetired(retired))
             return null;
-
+        if (delay <= 0) delay = 1;
+        if (period <= 0) period = 1;
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, true);
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
         taskImplementation.setScheduledTask(runnable.runTaskTimer(plugin, delay, period));

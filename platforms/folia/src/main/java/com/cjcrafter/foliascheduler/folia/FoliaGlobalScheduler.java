@@ -52,6 +52,7 @@ public class FoliaGlobalScheduler implements GlobalSchedulerImplementation {
     public @NotNull <T> TaskImplementation<T> runDelayed(@NotNull Function<TaskImplementation<T>, T> function, long delay) {
         FoliaTask<T> taskImplementation = new FoliaTask<>();
         Consumer<ScheduledTask> foliaConsumer = buildFoliaConsumer(taskImplementation, function);
+        if (delay <= 0) delay = 1;
         ScheduledTask scheduledTask = globalRegionScheduler.runDelayed(plugin, foliaConsumer, delay);
         taskImplementation.setScheduledTask(scheduledTask);
         return taskImplementation;
@@ -61,6 +62,8 @@ public class FoliaGlobalScheduler implements GlobalSchedulerImplementation {
     public @NotNull <T> TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, long delay, long period) {
         FoliaTask<T> taskImplementation = new FoliaTask<>();
         Consumer<ScheduledTask> foliaConsumer = buildFoliaConsumer(taskImplementation, function);
+        if (delay <= 0) delay = 1;
+        if (period <= 0) period = 1;
         ScheduledTask scheduledTask = globalRegionScheduler.runAtFixedRate(plugin, foliaConsumer, delay, period);
         taskImplementation.setScheduledTask(scheduledTask);
         return taskImplementation;

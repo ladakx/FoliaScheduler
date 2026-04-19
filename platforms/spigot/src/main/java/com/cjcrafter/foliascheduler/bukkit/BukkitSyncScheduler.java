@@ -19,8 +19,8 @@ public class BukkitSyncScheduler implements GlobalSchedulerImplementation {
     }
 
     private <T> @NotNull BukkitRunnable buildBukkitRunnable(
-        @NotNull Function<TaskImplementation<T>, T> function,
-        @NotNull BukkitTask<T> taskImplementation
+            @NotNull Function<TaskImplementation<T>, T> function,
+            @NotNull BukkitTask<T> taskImplementation
     ) {
         return new BukkitRunnable() {
             @Override
@@ -33,6 +33,12 @@ public class BukkitSyncScheduler implements GlobalSchedulerImplementation {
 
     @Override
     public void execute(@NotNull Runnable run) {
+        // Fallback: If the plugin is shutting down, run immediately on the current thread
+        if (!plugin.isEnabled()) {
+            run.run();
+            return;
+        }
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -44,6 +50,14 @@ public class BukkitSyncScheduler implements GlobalSchedulerImplementation {
     @Override
     public @NotNull <T> TaskImplementation<T> run(@NotNull Function<TaskImplementation<T>, T> function) {
         BukkitTask<T> taskImplementation = new BukkitTask<>(plugin, false);
+
+        // Fallback: If the plugin is shutting down, run immediately on the current thread
+        if (!plugin.isEnabled()) {
+            taskImplementation.setCallback(function.apply(taskImplementation));
+            taskImplementation.asFuture().complete(taskImplementation);
+            return taskImplementation;
+        }
+
         BukkitRunnable runnable = buildBukkitRunnable(function, taskImplementation);
         taskImplementation.setScheduledTask(runnable.runTask(plugin));
         return taskImplementation;

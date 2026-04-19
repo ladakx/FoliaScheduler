@@ -48,6 +48,7 @@ public class FoliaAsyncScheduler implements AsyncSchedulerImplementation {
     public <T> @NotNull TaskImplementation<T> runDelayed(@NotNull Function<TaskImplementation<T>, T> function, long delay, @NotNull TimeUnit unit) {
         FoliaTask<T> taskImplementation = new FoliaTask<>();
         Consumer<ScheduledTask> foliaConsumer = buildFoliaConsumer(taskImplementation, function);
+        if (delay <= 0) delay = 1;
         ScheduledTask scheduledTask = asyncScheduler.runDelayed(plugin, foliaConsumer, delay, unit);
         taskImplementation.setScheduledTask(scheduledTask);
         return taskImplementation;
@@ -57,6 +58,8 @@ public class FoliaAsyncScheduler implements AsyncSchedulerImplementation {
     public <T> @NotNull TaskImplementation<T> runAtFixedRate(@NotNull Function<TaskImplementation<T>, T> function, long delay, long period, @NotNull TimeUnit unit) {
         FoliaTask<T> taskImplementation = new FoliaTask<>();
         Consumer<ScheduledTask> foliaConsumer = buildFoliaConsumer(taskImplementation, function);
+        if (delay <= 0) delay = 1;
+        if (period <= 0) period = 1;
         ScheduledTask scheduledTask = asyncScheduler.runAtFixedRate(plugin, foliaConsumer, delay, period, unit);
         taskImplementation.setScheduledTask(scheduledTask);
         return taskImplementation;

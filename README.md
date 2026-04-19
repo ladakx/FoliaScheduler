@@ -18,67 +18,7 @@ you can now schedule tasks on entities, regions, asynchronously, and more!
 
 ## How it works
 We use Folia's scheduler (included in paper server jars) if it is available. If not, we fallback to
-Spigot's scheduler, `BukkitRunnable`. This adds support for practically any server. 
-
-## Maven
-```xml
-<dependency>
-    <groupId>com.cjcrafter</groupId>
-    <artifactId>foliascheduler</artifactId>
-    <version>0.7.0</version>
-</dependency>
-```
-
-<details>
-<summary><b>[Full Maven + Shade example]</b></summary>
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>com.cjcrafter</groupId>
-        <artifactId>foliascheduler</artifactId>
-        <version>0.7.0</version>
-    </dependency>
-</dependencies>
-
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.6.0</version>  <!-- always check for latest -->
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>shade</goal>
-                    </goals>
-                    <configuration>
-                        <relocations>
-                            <relocation>
-                                <pattern>com.cjcrafter.foliascheduler</pattern>
-                                <shadedPattern>com.example.foliascheduler</shadedPattern>
-                            </relocation>
-                        </relocations>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-</details>
-
-## Gradle
-```kotlin
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation("com.cjcrafter:foliascheduler:0.7.0")
-}
-```
+Spigot's scheduler, `BukkitRunnable`. This adds support for practically any server.
 
 <details>
 <summary><b>[Full Gradle + Shade example]</b></summary>
@@ -96,8 +36,7 @@ repositories {
 }
 
 dependencies {
-    // TODO add your version of Spigot/Paper here
-    implementation("com.cjcrafter:foliascheduler:0.7.0")
+    implementation("com.cjcrafter:foliascheduler:0.7.4-ladakx-SNAPSHOT")
 }
 
 // See https://github.com/Minecrell/plugin-yml
